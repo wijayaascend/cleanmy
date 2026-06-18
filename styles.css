@@ -500,6 +500,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
   .quote-cta__inner { grid-template-columns: 1fr; gap: 36px; }
   .footer__inner { grid-template-columns: 1fr 1fr; gap: 32px; }
   .fab { display: inline-flex; }
+  /* clear the fixed "Free quote" button so it doesn't cover the footer links */
+  .footer__bottom { padding-bottom: 92px; }
 }
 
 @media (max-width: 540px) {
@@ -510,7 +512,9 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
   .stats__grid { grid-template-columns: 1fr 1fr; }
   .field-row { grid-template-columns: 1fr; }
   .footer__inner { grid-template-columns: 1fr; }
-  .footer__bottom { flex-direction: column; gap: 12px; }
+  .footer__bottom { flex-direction: column; gap: 12px; text-align: center; }
+  .footer__bottom .footer__rights { display: block; }
+  .footer__legal { justify-content: center; }
   .hero__actions .btn { flex: 1; }
   .quote-form { padding: 26px 20px; }
   .topbar__inner { justify-content: center; }
