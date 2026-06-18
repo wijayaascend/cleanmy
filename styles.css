@@ -202,7 +202,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
   border-radius: var(--r-xl); transform: rotate(3deg);
 }
 .panel { position: relative; z-index: 2; background: var(--white); color: var(--ink);
-  border-radius: var(--r-xl); box-shadow: var(--shadow-lg); padding: 26px 26px 22px; }
+  border-radius: var(--r-xl); box-shadow: var(--shadow-lg); padding: 26px 26px 22px;
+  animation: float 6s ease-in-out infinite; }
 .panel__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .panel__badge { display: inline-flex; align-items: center; gap: 7px; font-size: .78rem; font-weight: 600;
   color: var(--teal-600); background: rgba(42,129,140,.10); padding: 6px 12px; border-radius: var(--r-pill); }
@@ -221,13 +222,15 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
   color: var(--teal-600); }
 .panel__cta .ic { width: 15px; height: 15px; }
 
-.hero__chip { position: absolute; z-index: 4; top: -26px; right: -18px;
-  display: flex; align-items: center; gap: 10px; background: var(--navy-700); color: var(--white);
-  border-radius: var(--r-pill); padding: 10px 16px 10px 12px; box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255,255,255,.08); }
-.hero__chip .ic { color: var(--teal-soft); width: 23px; height: 23px; }
-.hero__chip strong { font-family: var(--font-head); font-size: .98rem; display: block; line-height: 1; }
-.hero__chip small { font-size: .7rem; color: rgba(255,255,255,.64); }
+.hero__chip { position: absolute; z-index: 4; top: -32px; right: -14px;
+  display: flex; align-items: center; gap: 11px; background: var(--white); color: var(--navy-700);
+  border-radius: var(--r-pill); padding: 9px 18px 9px 9px; box-shadow: var(--shadow-lg);
+  animation: float 4.6s ease-in-out infinite .7s; }
+.hero__chip-ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(42,129,140,.14); color: var(--teal-600); flex-shrink: 0; }
+.hero__chip-ic .ic { width: 21px; height: 21px; }
+.hero__chip-txt strong { font-family: var(--font-head); font-size: 1.02rem; display: block; line-height: 1; color: var(--navy-700); }
+.hero__chip-txt small { font-size: .72rem; color: var(--muted); }
 
 /* Marquee */
 .marquee { position: relative; z-index: 2; border-top: 1px solid rgba(255,255,255,.07);
