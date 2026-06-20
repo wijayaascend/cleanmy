@@ -4,6 +4,9 @@
 (function () {
   'use strict';
 
+  /* ---- Basic anti-clickjacking fallback (real protection = frame-ancestors header at the edge) ---- */
+  try { if (window.top !== window.self) window.top.location = window.location.href; } catch (e) {}
+
   /* ---- Sticky nav scrolled state ---- */
   const nav = document.getElementById('nav');
   const onScroll = () => {
@@ -81,6 +84,9 @@
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+      // Honeypot: if the hidden field has content, it's almost certainly a bot — drop silently.
+      const hp = form.querySelector('[name="company_url"]');
+      if (hp && hp.value.trim() !== '') { form.reset(); return; }
       if (!form.checkValidity()) { form.reportValidity(); return; }
       note.hidden = false;
       form.querySelector('button[type="submit"]').textContent = 'Request received ✓';

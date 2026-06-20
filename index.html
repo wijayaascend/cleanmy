@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Clean.my — Residential & Commercial Cleaning Services</title>
   <meta name="description" content="Clean.my delivers world-class residential, post-renovation, industrial, F&B and B2B commercial cleaning. Vetted teams, eco-friendly products, satisfaction guaranteed." />
   <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png" />
@@ -353,16 +355,16 @@
       <form class="quote-form reveal" data-delay="120" id="quoteForm" novalidate>
         <div class="field">
           <label for="qname">Full name</label>
-          <input type="text" id="qname" name="name" placeholder="Your name" required />
+          <input type="text" id="qname" name="name" placeholder="Your name" maxlength="80" autocomplete="name" required />
         </div>
         <div class="field-row">
           <div class="field">
             <label for="qemail">Email</label>
-            <input type="email" id="qemail" name="email" placeholder="you@email.com" required />
+            <input type="email" id="qemail" name="email" placeholder="you@email.com" maxlength="120" autocomplete="email" required />
           </div>
           <div class="field">
             <label for="qphone">Phone</label>
-            <input type="tel" id="qphone" name="phone" placeholder="+60 1x-xxx xxxx" required />
+            <input type="tel" id="qphone" name="phone" placeholder="+60 1x-xxx xxxx" maxlength="30" autocomplete="tel" required />
           </div>
         </div>
         <div class="field">
@@ -378,7 +380,12 @@
         </div>
         <div class="field">
           <label for="qmsg">Tell us about your space</label>
-          <textarea id="qmsg" name="message" rows="3" placeholder="e.g. 3-bedroom condo, post-renovation, ~1,200 sqft"></textarea>
+          <textarea id="qmsg" name="message" rows="3" maxlength="1000" placeholder="e.g. 3-bedroom condo, post-renovation, ~1,200 sqft"></textarea>
+        </div>
+        <!-- Honeypot: hidden from real users; bots that fill it are rejected -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="company_url">Company URL (leave this empty)</label>
+          <input type="text" id="company_url" name="company_url" tabindex="-1" autocomplete="off" />
         </div>
         <button type="submit" class="btn btn--primary btn--lg btn--block">Request my free quote <svg viewBox="0 0 24 24" class="ic"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <p class="form-note" id="formNote" hidden>✓ Thanks! Your request is in — we'll be in touch within one business day.</p>

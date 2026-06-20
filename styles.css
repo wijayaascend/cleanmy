@@ -379,6 +379,9 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
 .form-note { margin-top: 14px; padding: 12px 16px; border-radius: var(--r-sm);
   background: rgba(42,129,140,.12); color: var(--teal-700); font-weight: 600; font-size: .9rem; }
 .form-fine { margin-top: 14px; font-size: .78rem; color: var(--muted); text-align: center; }
+/* Honeypot: kept in the DOM for bots but hidden from real users & a11y tools */
+.hp-field { position: absolute !important; left: -9999px !important; top: auto; width: 1px; height: 1px;
+  overflow: hidden; opacity: 0; pointer-events: none; }
 
 /* ============================================================
    Footer (BRIGHT — navy logo reads on light)
