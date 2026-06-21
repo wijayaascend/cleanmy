@@ -115,6 +115,8 @@
     const Places = window.google && google.maps && google.maps.places;
     // New Places API (legacy Autocomplete is unavailable to new Google customers)
     if (!input || !Places || !Places.AutocompleteSuggestion) return;
+    if (input.dataset.acReady) return;            // guard against double init
+    input.dataset.acReady = '1';
 
     // Build a custom dropdown around the input, styled to match the form
     const wrap = document.createElement('div');
@@ -131,16 +133,24 @@
     let active = -1;
 
     const hide = () => { list.hidden = true; list.innerHTML = ''; active = -1; };
+    const info = (msg) => {                         // visible diagnostic / fallback
+      list.innerHTML = '';
+      const li = document.createElement('li');
+      li.className = 'ac-item ac-item--info';
+      li.textContent = msg;
+      list.appendChild(li);
+      list.hidden = false;
+    };
     const choose = (text) => {
       input.value = text;
       hide();
       token = new Places.AutocompleteSessionToken(); // fresh session after each pick
     };
     const render = (suggestions) => {
-      list.innerHTML = '';
-      active = -1;
       const picks = (suggestions || []).filter((s) => s.placePrediction).slice(0, 5);
       if (!picks.length) { hide(); return; }
+      list.innerHTML = '';
+      active = -1;
       picks.forEach((s) => {
         const text = s.placePrediction.text.toString();
         const li = document.createElement('li');
@@ -151,10 +161,8 @@
       });
       list.hidden = false;
     };
-
-    input.addEventListener('input', () => {
+    const search = (v) => {
       clearTimeout(timer);
-      const v = input.value.trim();
       if (v.length < 3) { hide(); return; }
       timer = setTimeout(async () => {
         try {
@@ -162,11 +170,16 @@
             input: v, sessionToken: token, includedRegionCodes: ['my']
           });
           render(res.suggestions);
-        } catch (err) { hide(); }
+        } catch (err) {
+          console.warn('Places autocomplete error:', err);
+          info('Lookup error: ' + (err && err.message ? err.message : String(err)));
+        }
       }, 260);
-    });
+    };
+
+    input.addEventListener('input', () => search(input.value.trim()));
     input.addEventListener('keydown', (e) => {
-      const items = list.querySelectorAll('.ac-item');
+      const items = list.querySelectorAll('.ac-item:not(.ac-item--info)');
       if (list.hidden || !items.length) return;
       if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, items.length - 1); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); }
@@ -176,6 +189,9 @@
       items.forEach((it, i) => it.classList.toggle('active', i === active));
     });
     input.addEventListener('blur', () => setTimeout(hide, 150));
+
+    // Race fix: if text was typed before Places finished loading, search it now
+    if (input.value.trim().length >= 3) search(input.value.trim());
   };
 
   /* ---- WhatsApp quote modal ---- */
@@ -184,6 +200,8 @@
   if (fab && modal) {
     const waForm = document.getElementById('waForm');
     const closeBtn = document.getElementById('qmClose');
+    const addrInput = document.getElementById('waAddress');
+    if (addrInput) addrInput.addEventListener('focus', loadPlaces); // preload on field focus
     let lastFocus = null;
 
     const openModal = () => {

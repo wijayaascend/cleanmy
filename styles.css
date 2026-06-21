@@ -487,6 +487,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
 .ac-item { padding: 8px 11px; font-size: .85rem; color: var(--slate); border-radius: 7px; cursor: pointer;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ac-item:hover, .ac-item.active { background: var(--cloud); color: var(--ink); }
+.ac-item--info { color: var(--muted); cursor: default; font-style: italic; white-space: normal; }
+.ac-item--info:hover { background: transparent; color: var(--muted); }
 .btn--whatsapp { background: #25d366; color: #08311b; box-shadow: 0 8px 20px rgba(37,211,102,.28); }
 .btn--whatsapp:hover { background: #1ec25b; transform: translateY(-2px); }
 .btn--whatsapp:hover .ic { transform: translateX(4px); }
