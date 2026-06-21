@@ -437,7 +437,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
 .legal-contact h3 { margin-top: 0; }
 .legal-disclaimer { margin-top: 28px; font-size: .82rem; color: var(--muted); font-style: italic; }
 .footer__bottom { display: flex; justify-content: space-between; align-items: center;
-  padding-block: 24px; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
+  padding: 24px 0 90px; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
 .footer__legal { display: flex; gap: 20px; }
 .footer__legal a:hover { color: var(--teal-600); }
 
@@ -445,10 +445,54 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; line-height: 1
    FAB (mobile)
    ============================================================ */
 .fab { position: fixed; bottom: 22px; right: 22px; z-index: 90;
-  display: none; align-items: center; gap: 9px; padding: 14px 20px;
+  display: inline-flex; align-items: center; gap: 9px; padding: 14px 20px;
   background: var(--teal-600); color: var(--white); font-weight: 700; font-size: .95rem;
-  border-radius: var(--r-pill); box-shadow: var(--shadow-btn); }
+  border-radius: var(--r-pill); box-shadow: var(--shadow-btn); cursor: pointer;
+  transition: transform .2s var(--ease), background .2s; }
+.fab:hover { background: var(--teal-500); transform: translateY(-2px); }
 .fab .ic { width: 20px; height: 20px; }
+
+/* ============================================================
+   WhatsApp quote modal
+   ============================================================ */
+.modal-overlay { position: fixed; inset: 0; z-index: 200; display: none; overflow-y: auto;
+  background: rgba(10,22,38,.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); padding: 24px 20px; }
+.modal-overlay.open { display: flex; animation: fadeIn .25s var(--ease); }
+.modal { margin: auto; position: relative; width: 100%; max-width: 396px;
+  background: var(--white); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); padding: 24px 22px 20px;
+  animation: popIn .3s var(--ease); }
+.modal__close { position: absolute; top: 13px; right: 13px; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--slate); background: var(--cloud); transition: background .2s, color .2s; }
+.modal__close:hover { background: var(--line); color: var(--ink); }
+.modal__close .ic { width: 17px; height: 17px; }
+.modal__head { margin-bottom: 16px; }
+.modal__badge { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 600;
+  letter-spacing: .03em; color: #1f8a4c; background: rgba(37,211,102,.12); padding: 5px 11px;
+  border-radius: var(--r-pill); margin-bottom: 11px; }
+.modal__badge .ic { width: 14px; height: 14px; }
+.modal__head h3 { font-size: 1.25rem; margin-bottom: 6px; }
+.modal__head p { font-size: .86rem; color: var(--muted); }
+.field__opt { font-weight: 400; color: var(--muted); }
+/* compact form inside the modal */
+.modal__form .field { margin-bottom: 12px; gap: 5px; }
+.modal__form label { font-size: .8rem; }
+.modal__form input, .modal__form textarea { padding: 9px 12px; font-size: .88rem; border-radius: var(--r-sm); }
+.modal__form .btn { padding: 12px; font-size: .92rem; margin-top: 2px; }
+.modal__form .form-fine { margin-top: 9px; font-size: .74rem; }
+/* Custom Google Places address dropdown */
+.ac-wrap { position: relative; }
+.ac-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 300; margin: 0; padding: 4px;
+  list-style: none; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-sm);
+  box-shadow: var(--shadow-md); max-height: 224px; overflow-y: auto; }
+.ac-item { padding: 8px 11px; font-size: .85rem; color: var(--slate); border-radius: 7px; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-item:hover, .ac-item.active { background: var(--cloud); color: var(--ink); }
+.btn--whatsapp { background: #25d366; color: #08311b; box-shadow: 0 8px 20px rgba(37,211,102,.28); }
+.btn--whatsapp:hover { background: #1ec25b; transform: translateY(-2px); }
+.btn--whatsapp:hover .ic { transform: translateX(4px); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
 
 /* ============================================================
    Scroll reveal + animations

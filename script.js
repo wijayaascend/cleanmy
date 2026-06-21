@@ -95,6 +95,144 @@
     });
   }
 
+  /* ---- Google Places address autocomplete ----
+     Browser key — it is public by nature; it MUST be locked down in Google Cloud
+     Console with an HTTP-referrer restriction (clean.my) + Places API restriction
+     + a billing budget. Loaded lazily the first time the modal is opened. */
+  const MAPS_API_KEY = 'AIzaSyDwC15A3AO67RoB6_gUka69IjW7PFvgkxA';
+  let mapsRequested = false;
+  const loadPlaces = () => {
+    if (mapsRequested) return;
+    mapsRequested = true;
+    const s = document.createElement('script');
+    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + MAPS_API_KEY +
+            '&libraries=places&loading=async&callback=__initWaAutocomplete';
+    s.async = true;
+    document.head.appendChild(s);
+  };
+  window.__initWaAutocomplete = function () {
+    const input = document.getElementById('waAddress');
+    const Places = window.google && google.maps && google.maps.places;
+    // New Places API (legacy Autocomplete is unavailable to new Google customers)
+    if (!input || !Places || !Places.AutocompleteSuggestion) return;
+
+    // Build a custom dropdown around the input, styled to match the form
+    const wrap = document.createElement('div');
+    wrap.className = 'ac-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const list = document.createElement('ul');
+    list.className = 'ac-list';
+    list.hidden = true;
+    wrap.appendChild(list);
+
+    let token = new Places.AutocompleteSessionToken();
+    let timer = null;
+    let active = -1;
+
+    const hide = () => { list.hidden = true; list.innerHTML = ''; active = -1; };
+    const choose = (text) => {
+      input.value = text;
+      hide();
+      token = new Places.AutocompleteSessionToken(); // fresh session after each pick
+    };
+    const render = (suggestions) => {
+      list.innerHTML = '';
+      active = -1;
+      const picks = (suggestions || []).filter((s) => s.placePrediction).slice(0, 5);
+      if (!picks.length) { hide(); return; }
+      picks.forEach((s) => {
+        const text = s.placePrediction.text.toString();
+        const li = document.createElement('li');
+        li.className = 'ac-item';
+        li.textContent = text;
+        li.addEventListener('mousedown', (e) => { e.preventDefault(); choose(text); });
+        list.appendChild(li);
+      });
+      list.hidden = false;
+    };
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const v = input.value.trim();
+      if (v.length < 3) { hide(); return; }
+      timer = setTimeout(async () => {
+        try {
+          const res = await Places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+            input: v, sessionToken: token, includedRegionCodes: ['my']
+          });
+          render(res.suggestions);
+        } catch (err) { hide(); }
+      }, 260);
+    });
+    input.addEventListener('keydown', (e) => {
+      const items = list.querySelectorAll('.ac-item');
+      if (list.hidden || !items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, items.length - 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (active >= 0) choose(items[active].textContent); return; }
+      else if (e.key === 'Escape') { hide(); return; }
+      else return;
+      items.forEach((it, i) => it.classList.toggle('active', i === active));
+    });
+    input.addEventListener('blur', () => setTimeout(hide, 150));
+  };
+
+  /* ---- WhatsApp quote modal ---- */
+  const fab = document.getElementById('fabQuote');
+  const modal = document.getElementById('quoteModal');
+  if (fab && modal) {
+    const waForm = document.getElementById('waForm');
+    const closeBtn = document.getElementById('qmClose');
+    let lastFocus = null;
+
+    const openModal = () => {
+      loadPlaces();
+      lastFocus = document.activeElement;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      const first = modal.querySelector('input, textarea');
+      if (first) setTimeout(() => first.focus(), 60);
+    };
+    const closeModal = () => {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+
+    fab.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+
+    waForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!waForm.checkValidity()) { waForm.reportValidity(); return; }
+      const number = (waForm.getAttribute('data-wa') || '').replace(/[^0-9]/g, '');
+      const val = (id) => (document.getElementById(id).value || '').trim();
+      const name = val('waName');
+      const phone = val('waPhone');
+      const address = val('waAddress');
+      const email = val('waEmail');
+      const enquiry = val('waMsg');
+
+      let msg = "Hi Clean.my! I'd like a cleaning quote.\n\n";
+      msg += 'Name: ' + name + '\n';
+      msg += 'Phone: ' + phone + '\n';
+      msg += 'Address: ' + address + '\n';
+      if (email) msg += 'Email: ' + email + '\n';
+      msg += '\nEnquiry:\n' + enquiry;
+
+      const url = 'https://wa.me/' + number + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank', 'noopener');
+      closeModal();
+    });
+  }
+
   /* ---- Current year ---- */
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());

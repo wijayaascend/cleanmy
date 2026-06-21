@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https://maps.gstatic.com https://*.gstatic.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://maps.googleapis.com https://maps.gstatic.com; connect-src 'self' https://maps.googleapis.com https://places.googleapis.com; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Clean.my — Residential & Commercial Cleaning Services</title>
   <meta name="description" content="Clean.my delivers world-class residential, post-renovation, industrial, F&B and B2B commercial cleaning. Vetted teams, eco-friendly products, satisfaction guaranteed." />
@@ -433,10 +433,51 @@
     </div>
   </footer>
 
-  <a href="#quote" class="fab" aria-label="Get a free quote">
+  <button type="button" class="fab" id="fabQuote" aria-label="Get a free quote on WhatsApp" aria-haspopup="dialog">
     <svg viewBox="0 0 24 24" class="ic"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg>
     <span>Free quote</span>
-  </a>
+  </button>
+
+  <!-- ░░ WhatsApp quote modal ░░ -->
+  <div class="modal-overlay" id="quoteModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="qmTitle">
+      <button type="button" class="modal__close" id="qmClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" class="ic"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="modal__head">
+        <span class="modal__badge"><svg viewBox="0 0 24 24" class="ic"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg> WhatsApp</span>
+        <h3 id="qmTitle">Get a quick quote</h3>
+        <p>Fill in your details and we'll open WhatsApp with your enquiry ready to send.</p>
+      </div>
+      <!-- data-wa = business WhatsApp number in international format, digits only (60 = Malaysia). Replace with the real number. -->
+      <form class="modal__form" id="waForm" data-wa="60123456789" novalidate>
+        <div class="field">
+          <label for="waName">Name</label>
+          <input type="text" id="waName" name="name" maxlength="80" autocomplete="name" placeholder="Your name" required />
+        </div>
+        <div class="field">
+          <label for="waPhone">Phone number</label>
+          <input type="tel" id="waPhone" name="phone" maxlength="30" autocomplete="tel" placeholder="+60 1x-xxx xxxx" required />
+        </div>
+        <div class="field">
+          <label for="waAddress">Address</label>
+          <input type="text" id="waAddress" name="address" maxlength="160" autocomplete="off" placeholder="Start typing your address…" required />
+        </div>
+        <div class="field">
+          <label for="waEmail">Email <span class="field__opt">(optional)</span></label>
+          <input type="email" id="waEmail" name="email" maxlength="120" autocomplete="email" placeholder="you@email.com" />
+        </div>
+        <div class="field">
+          <label for="waMsg">Enquiry</label>
+          <textarea id="waMsg" name="enquiry" rows="2" maxlength="600" placeholder="e.g. Post-renovation clean for a 3-bedroom condo" required></textarea>
+        </div>
+        <button type="submit" class="btn btn--lg btn--block btn--whatsapp">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg> Send on WhatsApp
+        </button>
+        <p class="form-fine">This opens WhatsApp with your details pre-filled — just review and hit send.</p>
+      </form>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
