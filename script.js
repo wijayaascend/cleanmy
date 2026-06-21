@@ -202,6 +202,10 @@
     const closeBtn = document.getElementById('qmClose');
     const addrInput = document.getElementById('waAddress');
     if (addrInput) addrInput.addEventListener('focus', loadPlaces); // preload on field focus
+    // Preload Places on the visitor's first interaction so it's always ready before the modal opens
+    const preloadPlaces = () => loadPlaces();
+    ['pointerdown', 'touchstart', 'scroll', 'keydown'].forEach((ev) =>
+      window.addEventListener(ev, preloadPlaces, { once: true, passive: true }));
     let lastFocus = null;
 
     const openModal = () => {
