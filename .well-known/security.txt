@@ -1,4 +1,4 @@
-Contact: mailto:security@clean.my
+Contact: mailto:dane@clean.my
 Expires: 2027-06-20T00:00:00.000Z
 Preferred-Languages: en, ms
 Canonical: https://clean.my/.well-known/security.txt
