@@ -100,6 +100,12 @@
      Console with an HTTP-referrer restriction (clean.my) + Places API restriction
      + a billing budget. Loaded lazily the first time the modal is opened. */
   const MAPS_API_KEY = 'AIzaSyDwC15A3AO67RoB6_gUka69IjW7PFvgkxA';
+
+  // Returning-customer details, remembered locally in the browser (no backend)
+  const QUOTE_KEY = 'cleanmy_quote_v1';
+  const loadSavedQuote = () => { try { return JSON.parse(localStorage.getItem(QUOTE_KEY) || 'null'); } catch (e) { return null; } };
+  const savedAddress = () => { const q = loadSavedQuote(); return (q && q.address) || ''; };
+
   let mapsRequested = false;
   const loadPlaces = () => {
     if (mapsRequested) return;
@@ -146,30 +152,44 @@
       hide();
       token = new Places.AutocompleteSessionToken(); // fresh session after each pick
     };
-    const render = (suggestions) => {
-      const picks = (suggestions || []).filter((s) => s.placePrediction).slice(0, 5);
-      if (!picks.length) { hide(); return; }
+    const makeItem = (text, saved) => {
+      const li = document.createElement('li');
+      li.className = saved ? 'ac-item ac-item--saved' : 'ac-item';
+      li.dataset.value = text;
+      if (saved) {
+        const tag = document.createElement('span');
+        tag.className = 'ac-saved-tag';
+        tag.textContent = 'Saved';
+        li.appendChild(tag);
+      }
+      li.appendChild(document.createTextNode(text));
+      li.addEventListener('mousedown', (e) => { e.preventDefault(); choose(text); });
+      return li;
+    };
+    const showList = (suggestions) => {
       list.innerHTML = '';
       active = -1;
-      picks.forEach((s) => {
-        const text = s.placePrediction.text.toString();
-        const li = document.createElement('li');
-        li.className = 'ac-item';
-        li.textContent = text;
-        li.addEventListener('mousedown', (e) => { e.preventDefault(); choose(text); });
-        list.appendChild(li);
-      });
-      list.hidden = false;
+      const saved = savedAddress();
+      const current = input.value.trim();
+      let count = 0;
+      // Saved address pinned to the top as the default — unless it's already typed
+      if (saved && saved !== current) { list.appendChild(makeItem(saved, true)); count++; }
+      (suggestions || []).filter((s) => s.placePrediction)
+        .map((s) => s.placePrediction.text.toString())
+        .filter((t) => t !== saved)
+        .slice(0, 5)
+        .forEach((t) => { list.appendChild(makeItem(t, false)); count++; });
+      list.hidden = count === 0;
     };
     const search = (v) => {
       clearTimeout(timer);
-      if (v.length < 3) { hide(); return; }
+      if (v.length < 3) { showList([]); return; }   // still offer the saved address
       timer = setTimeout(async () => {
         try {
           const res = await Places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
             input: v, sessionToken: token, includedRegionCodes: ['my']
           });
-          render(res.suggestions);
+          showList(res.suggestions);
         } catch (err) {
           console.warn('Places autocomplete error:', err);
           info('Lookup error: ' + (err && err.message ? err.message : String(err)));
@@ -177,20 +197,21 @@
       }, 260);
     };
 
+    input.addEventListener('focus', () => showList([]));   // offer the saved address on focus
     input.addEventListener('input', () => search(input.value.trim()));
     input.addEventListener('keydown', (e) => {
       const items = list.querySelectorAll('.ac-item:not(.ac-item--info)');
       if (list.hidden || !items.length) return;
       if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, items.length - 1); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); }
-      else if (e.key === 'Enter') { e.preventDefault(); if (active >= 0) choose(items[active].textContent); return; }
+      else if (e.key === 'Enter') { e.preventDefault(); if (active >= 0) choose(items[active].dataset.value); return; }
       else if (e.key === 'Escape') { hide(); return; }
       else return;
       items.forEach((it, i) => it.classList.toggle('active', i === active));
     });
     input.addEventListener('blur', () => setTimeout(hide, 150));
 
-    // Race fix: if text was typed before Places finished loading, search it now
+    // If text was typed before Places finished loading, search it now
     if (input.value.trim().length >= 3) search(input.value.trim());
   };
 
@@ -208,8 +229,16 @@
       window.addEventListener(ev, preloadPlaces, { once: true, passive: true }));
     let lastFocus = null;
 
+    const setIfEmpty = (id, v) => { const el = document.getElementById(id); if (el && !el.value && v) el.value = v; };
     const openModal = () => {
       loadPlaces();
+      const saved = loadSavedQuote();   // prefill returning customers
+      if (saved) {
+        setIfEmpty('waName', saved.name);
+        setIfEmpty('waPhone', saved.phone);
+        setIfEmpty('waAddress', saved.address);
+        setIfEmpty('waEmail', saved.email);
+      }
       lastFocus = document.activeElement;
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
@@ -241,6 +270,9 @@
       const address = val('waAddress');
       const email = val('waEmail');
       const enquiry = val('waMsg');
+
+      // Remember details for next time (saved address shows pinned on top)
+      try { localStorage.setItem(QUOTE_KEY, JSON.stringify({ name, phone, address, email })); } catch (e) {}
 
       let msg = "Hi Clean.my! I'd like a cleaning quote.\n\n";
       msg += 'Name: ' + name + '\n';
